@@ -1,0 +1,32 @@
+[
+  {
+    "version": "0.7",
+    "date": "2024-10-17",
+    "changes": [
+      "Set English as the default language",
+      "Updated UI elements for better English support",
+      "Improved language switching functionality",
+      "Minor bug fixes and performance improvements"
+    ]
+  },
+  {
+    "version": "0.6",
+    "date": "2024-10-16",
+    "changes": [
+      "Updated date and time display in clock",
+      "Added developer name to settings window",
+      "Improved update checking system",
+      "Bug fixes and performance improvements"
+    ]
+  },
+  {
+    "version": "0.5",
+    "date": "2023-04-15",
+    "changes": [
+      "Initial release of WebOS",
+      "Basic desktop functionality",
+      "Start menu and taskbar implementation",
+      "Simple app window system"
+    ]
+  }
+]

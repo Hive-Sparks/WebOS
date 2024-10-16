@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebOS v0.7 - Futuristic Operating System</title>
+    <link rel="stylesheet" href="main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="desktop">
+        <div id="version-display">WebOS v0.7</div>
+        <!-- Desktop icons will be added here dynamically -->
+    </div>
+
+    <div id="taskbar">
+        <div id="start-menu-button">
+            <i class="fas fa-th"></i>
+        </div>
+        <div id="open-windows">
+            <!-- Open windows will be added here dynamically -->
+        </div>
+        <div id="system-tray">
+            <span id="clock"></span>
+        </div>
+    </div>
+
+    <div id="start-menu" class="hidden">
+        <div class="start-menu-category">
+            <h3>Applications</h3>
+            <div class="start-menu-item" data-app="settings"><i class="fas fa-cog"></i> Settings</div>
+            <div class="start-menu-item" data-app="programs"><i class="fas fa-th-large"></i> Programs</div>
+            <div class="start-menu-item" data-app="desktop"><i class="fas fa-desktop"></i> Desktop</div>
+            <div class="start-menu-item" data-app="music"><i class="fas fa-music"></i> Music</div>
+            <div class="start-menu-item" data-app="pictures"><i class="fas fa-images"></i> Pictures</div>
+            <div class="start-menu-item" data-app="code"><i class="fas fa-code"></i> Code</div>
+        </div>
+        <div class="start-menu-category">
+            <h3>Tools</h3>
+            <div class="start-menu-item" data-app="calculator"><i class="fas fa-calculator"></i> Calculator</div>
+            <div class="start-menu-item" data-app="notepad"><i class="fas fa-sticky-note"></i> Notepad</div>
+            <div class="start-menu-item" data-app="calendar"><i class="fas fa-calendar-alt"></i> Calendar</div>
+            <div class="start-menu-item" data-app="terminal"><i class="fas fa-terminal"></i> Terminal</div>
+        </div>
+    </div>
+
+    <div id="context-menu" class="hidden">
+        <div class="context-menu-item" data-action="open">Open</div>
+        <div class="context-menu-item" data-action="rename">Rename</div>
+        <div class="context-menu-item" data-action="delete">Delete</div>
+        <div class="context-menu-item" data-action="properties">Properties</div>
+        <div class="context-menu-item" data-action="new-file">Create New File</div>
+        <div class="context-menu-item" data-action="new-folder">Create New Folder</div>
+    </div>
+
+    <div id="app-windows">
+        <!-- App windows will be added here dynamically -->
+    </div>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
