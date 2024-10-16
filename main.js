@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Handle opening applications
   const startMenuItems = document.querySelectorAll(".start-menu-item");
   const appWindows = document.getElementById("app-windows");
+  const openWindowsBar = document.getElementById("open-windows");
 
   startMenuItems.forEach((item) => {
     item.addEventListener("click", function () {
@@ -51,25 +52,47 @@ document.addEventListener("DOMContentLoaded", function () {
   function openApp(appName) {
     const appWindow = document.createElement("div");
     appWindow.className = "app-window";
+    appWindow.dataset.appName = appName;
     appWindow.innerHTML = `
-            <div class="app-title-bar">
-                <span>${getAppTitle(appName)}</span>
-                <button class="close-button"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="app-content">
-                ${getAppContent(appName)}
-            </div>
-        `;
+      <div class="app-title-bar">
+        <span>${getAppTitle(appName)}</span>
+        <div class="window-controls">
+          <button class="minimize-button"><i class="fas fa-window-minimize"></i></button>
+          <button class="maximize-button"><i class="fas fa-window-maximize"></i></button>
+          <button class="close-button"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+      <div class="app-content">
+        ${getAppContent(appName)}
+      </div>
+      <div class="resize-handle"></div>
+    `;
     appWindows.appendChild(appWindow);
 
-    // Handle window closing
+    // Add taskbar entry
+    const taskbarEntry = document.createElement("div");
+    taskbarEntry.className = "taskbar-entry";
+    taskbarEntry.textContent = getAppTitle(appName);
+    taskbarEntry.dataset.appName = appName;
+    openWindowsBar.appendChild(taskbarEntry);
+
+    // Handle window controls
     const closeButton = appWindow.querySelector(".close-button");
-    closeButton.addEventListener("click", function () {
-      appWindow.remove();
-    });
+    const minimizeButton = appWindow.querySelector(".minimize-button");
+    const maximizeButton = appWindow.querySelector(".maximize-button");
+
+    closeButton.addEventListener("click", () => closeWindow(appWindow));
+    minimizeButton.addEventListener("click", () => minimizeWindow(appWindow));
+    maximizeButton.addEventListener("click", () => maximizeWindow(appWindow));
 
     // Handle window dragging
     makeDraggable(appWindow);
+
+    // Handle window resizing
+    makeResizable(appWindow);
+
+    // Focus the new window
+    focusWindow(appWindow);
   }
 
   function getAppTitle(appName) {
@@ -121,77 +144,156 @@ document.addEventListener("DOMContentLoaded", function () {
       `;
     }
     // Other app contents...
+    return `<p>Content for ${appName} app</p>`;
   }
 
   function makeDraggable(element) {
-    // ... (existing draggable functionality)
+    const titleBar = element.querySelector(".app-title-bar");
+    let pos1 = 0,
+      pos2 = 0,
+      pos3 = 0,
+      pos4 = 0;
+
+    titleBar.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+      e.preventDefault();
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      document.onmouseup = closeDragElement;
+      document.onmousemove = elementDrag;
+      focusWindow(element);
+    }
+
+    function elementDrag(e) {
+      e.preventDefault();
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      element.style.top = element.offsetTop - pos2 + "px";
+      element.style.left = element.offsetLeft - pos1 + "px";
+
+      // Window snapping
+      const snapThreshold = 20;
+      const desktop = document.getElementById("desktop");
+      const rect = element.getBoundingClientRect();
+      const desktopRect = desktop.getBoundingClientRect();
+
+      if (rect.left < desktopRect.left + snapThreshold)
+        element.style.left = "0px";
+      if (rect.top < desktopRect.top + snapThreshold) element.style.top = "0px";
+      if (rect.right > desktopRect.right - snapThreshold)
+        element.style.left = desktopRect.width - rect.width + "px";
+      if (rect.bottom > desktopRect.bottom - snapThreshold)
+        element.style.top = desktopRect.height - rect.height + "px";
+    }
+
+    function closeDragElement() {
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
   }
 
-  // Handle context menu (right-click)
-  const contextMenu = document.getElementById("context-menu");
+  function makeResizable(element) {
+    const resizeHandle = element.querySelector(".resize-handle");
+    let startX, startY, startWidth, startHeight;
 
-  document.addEventListener("contextmenu", function (event) {
-    event.preventDefault();
-    const clickedElement = event.target.closest(".desktop-icon, .app-window");
+    resizeHandle.addEventListener("mousedown", initResize, false);
 
-    if (clickedElement) {
-      contextMenu.style.display = "block";
-      contextMenu.style.left = `${event.clientX}px`;
-      contextMenu.style.top = `${event.clientY}px`;
-    }
-  });
-
-  document.addEventListener("click", function () {
-    contextMenu.style.display = "none";
-  });
-
-  // Handle context menu actions
-  const contextMenuItems = document.querySelectorAll(".context-menu-item");
-  contextMenuItems.forEach((item) => {
-    item.addEventListener("click", function () {
-      const action = this.dataset.action;
-      const selectedElement = document.querySelector(
-        ".desktop-icon.selected, .app-window.selected"
+    function initResize(e) {
+      startX = e.clientX;
+      startY = e.clientY;
+      startWidth = parseInt(
+        document.defaultView.getComputedStyle(element).width,
+        10
       );
+      startHeight = parseInt(
+        document.defaultView.getComputedStyle(element).height,
+        10
+      );
+      document.addEventListener("mousemove", resize, false);
+      document.addEventListener("mouseup", stopResize, false);
+    }
 
-      if (selectedElement) {
-        switch (action) {
-          case "rename":
-            // Add rename logic here
-            console.log("Rename");
-            break;
-          case "delete":
-            selectedElement.remove();
-            break;
-          case "properties":
-            // Add properties logic here
-            console.log("Show properties");
-            break;
+    function resize(e) {
+      element.style.width = startWidth + e.clientX - startX + "px";
+      element.style.height = startHeight + e.clientY - startY + "px";
+    }
+
+    function stopResize() {
+      document.removeEventListener("mousemove", resize, false);
+      document.removeEventListener("mouseup", stopResize, false);
+    }
+  }
+
+  function closeWindow(window) {
+    window.remove();
+    const taskbarEntry = openWindowsBar.querySelector(
+      `[data-app-name="${window.dataset.appName}"]`
+    );
+    if (taskbarEntry) taskbarEntry.remove();
+  }
+
+  function minimizeWindow(window) {
+    window.style.display = "none";
+    const taskbarEntry = openWindowsBar.querySelector(
+      `[data-app-name="${window.dataset.appName}"]`
+    );
+    if (taskbarEntry) taskbarEntry.classList.remove("active");
+  }
+
+  function maximizeWindow(window) {
+    window.classList.toggle("maximized");
+    const maximizeButton = window.querySelector(".maximize-button i");
+    maximizeButton.classList.toggle("fa-window-maximize");
+    maximizeButton.classList.toggle("fa-window-restore");
+  }
+
+  function focusWindow(window) {
+    document
+      .querySelectorAll(".app-window")
+      .forEach((w) => w.classList.remove("active"));
+    window.classList.add("active");
+    window.style.zIndex = getTopZIndex() + 1;
+    const taskbarEntries = openWindowsBar.querySelectorAll(".taskbar-entry");
+    taskbarEntries.forEach((entry) => entry.classList.remove("active"));
+    const activeEntry = openWindowsBar.querySelector(
+      `[data-app-name="${window.dataset.appName}"]`
+    );
+    if (activeEntry) activeEntry.classList.add("active");
+  }
+
+  function getTopZIndex() {
+    const windows = document.querySelectorAll(".app-window");
+    let topIndex = 0;
+    windows.forEach((w) => {
+      const zIndex = parseInt(window.getComputedStyle(w).zIndex, 10);
+      if (zIndex > topIndex) topIndex = zIndex;
+    });
+    return topIndex;
+  }
+
+  // Handle taskbar entry clicks
+  openWindowsBar.addEventListener("click", (e) => {
+    const taskbarEntry = e.target.closest(".taskbar-entry");
+    if (taskbarEntry) {
+      const appName = taskbarEntry.dataset.appName;
+      const appWindow = appWindows.querySelector(
+        `.app-window[data-app-name="${appName}"]`
+      );
+      if (appWindow) {
+        if (appWindow.style.display === "none") {
+          appWindow.style.display = "block";
+          focusWindow(appWindow);
+        } else if (appWindow.classList.contains("active")) {
+          minimizeWindow(appWindow);
+        } else {
+          focusWindow(appWindow);
         }
       }
-    });
-  });
-
-  // Function to create a new file
-  function createNewFile() {
-    const fileName = prompt("Enter a name for the new file:");
-    if (fileName) {
-      const newFile = document.createElement("div");
-      newFile.className = "desktop-icon";
-      newFile.innerHTML = `
-        <i class="fas fa-file"></i>
-        <span>${fileName}</span>
-      `;
-      desktop.appendChild(newFile);
     }
-  }
-
-  // Add create new file option to context menu
-  const createFileMenuItem = document.createElement("div");
-  createFileMenuItem.className = "context-menu-item";
-  createFileMenuItem.textContent = "Create New File";
-  createFileMenuItem.addEventListener("click", createNewFile);
-  contextMenu.appendChild(createFileMenuItem);
+  });
 
   // ... (rest of the existing code)
 });

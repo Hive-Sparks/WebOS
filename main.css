@@ -147,8 +147,8 @@ main {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   transition: box-shadow 0.3s ease;
-  min-width: 300px;
-  min-height: 200px;
+  min-width: 200px;
+  min-height: 150px;
   resize: both;
 }
 
@@ -157,10 +157,15 @@ main {
 }
 
 .app-window.maximized {
-  width: 100% !important;
-  height: calc(100% - 50px) !important;
   top: 0 !important;
   left: 0 !important;
+  width: 100% !important;
+  height: calc(100% - 50px) !important; /* Adjust for taskbar height */
+}
+
+.app-window.active {
+  z-index: 1000;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .maximize-button {
@@ -415,4 +420,37 @@ body.light-theme #start-menu {
 body.light-theme .app-title-bar {
   background-color: #e94560;
   color: white;
+}
+
+.window-controls {
+  display: flex;
+}
+
+.window-controls button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 14px;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  cursor: se-resize;
+}
+
+.taskbar-entry {
+  padding: 5px 10px;
+  margin: 0 5px;
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+
+.taskbar-entry.active {
+  background-color: rgba(255, 255, 255, 0.3);
 }
