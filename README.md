@@ -1,34 +1,41 @@
 # WebOS 🖥️✨
 
-Welcome to WebOS - העתיד של מערכות ההפעלה מבוססות הדפדפן! 🚀
+Welcome to WebOS - The future of browser-based operating systems! 🚀
 
-## מה זה WebOS? 🤔
+## What is WebOS? 🤔
 
-WebOS הוא פרויקט חדשני המדמה מערכת הפעלה בתוך הדפדפן שלך. זוהי פלטפורמה רב-לשונית, אינטראקטיבית ומודרנית המציעה חוויית משתמש דומה למערכת הפעלה אמיתית - הכל בתוך הדפדפן! 🌐💻
+WebOS is an innovative project that simulates an operating system within your browser. It's a multilingual, interactive, and modern platform offering a user experience similar to a real operating system - all inside your browser! 🌐💻
 
-## תכונות עיקריות 🌟
+## Key Features 🌟
 
-- 🖥️ ממשק משתמש גרפי מלא עם שולחן עבודה, תפריט התחלה וסרגל משימות
-- 🗂️ ניהול קבצים ותיקיות
-- 🚀 אפליקציות מובנות כמו מחשבון, פנקס רשימות, לוח שנה ועוד
-- 🌍 תמיכה במספר שפות (כרגע עברית ואנגלית)
-- ⚙️ הגדרות מערכת הניתנות להתאמה אישית
-- 🖱️ תמיכה בתפריט הקשר (קליק ימני)
+- 🖥️ Full graphical user interface with desktop, start menu, and taskbar
+- 🗂️ File and folder management
+- 🚀 Built-in applications like calculator, notepad, calendar, and more
+- 🌍 Support for multiple languages (currently English and Hebrew)
+- ⚙️ Customizable system settings
+- 🖱️ Context menu support (right-click)
 
-## איך להשתמש? 🚀
+## How to Use? 🚀
 
-1. 📥 הורד או שכפל את הפרויקט
-2. 🌐 פתח את קובץ `index.html` בדפדפן המועדף עליך
-3. 🎉 התחל לחקור ולהנות מ-WebOS!
+1. 📥 Download or clone the project
+2. 🌐 Open the `index.html` file in your preferred browser
+3. 🎉 Start exploring and enjoying WebOS!
 
-## פיתוח 👨‍💻👩‍💻
+## Development 👨‍💻👩‍💻
 
-WebOS נכתב ב-HTML, CSS, ו-JavaScript טהור. אנו תמיד מחפשים לשפר ולהרחיב את הפרויקט. אם יש לך רעיונות או שיפורים, אנא צור Pull Request!
+WebOS is written in pure HTML, CSS, and JavaScript. We're always looking to improve and expand the project. If you have ideas or improvements, please create a Pull Request!
 
-## רישיון 📜
+## License 📜
 
-פרויקט זה מופץ תחת רישיון MIT. ראה את קובץ `LICENSE` לפרטים נוספים.
+This project is distributed under the MIT License. See the `LICENSE` file for more details.
+
+## What's New in Version 0.7 🆕
+
+- English is now the default language
+- Updated UI elements for better English support
+- Improved language switching functionality
+- Minor bug fixes and performance improvements
 
 ---
 
-נבנה באהבה ❤️ על ידי צוות WebOS
+Built with ❤️ by the WebOS Team
