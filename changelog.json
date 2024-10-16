@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.8",
+    "date": "2024-10-20",
+    "changes": [
+      "Added day clock themes (Morning, Noon, Evening, Night)",
+      "Implemented theme switching based on time of day",
+      "Added day clock icon to taskbar with theme selection window",
+      "Updated color schemes for each theme",
+      "Improved overall system stability and performance"
+    ]
+  },
+  {
     "version": "0.7",
     "date": "2024-10-17",
     "changes": [

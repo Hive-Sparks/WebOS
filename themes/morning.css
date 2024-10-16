@@ -1,0 +1,58 @@
+:root {
+  --primary-bg: #87ceeb;
+  --secondary-bg: #ffd700;
+  --text-color: #333333;
+  --accent-color: #ff6347;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --window-bg: rgba(255, 255, 255, 0.9);
+  --taskbar-bg: rgba(255, 255, 255, 0.8);
+  --start-menu-bg: rgba(255, 255, 255, 0.9);
+  --context-menu-bg: rgba(255, 255, 255, 0.9);
+  --hover-color: rgba(255, 99, 71, 0.2);
+}
+
+body {
+  background: linear-gradient(135deg, var(--primary-bg), var(--secondary-bg));
+  color: var(--text-color);
+}
+
+#taskbar {
+  background-color: var(--taskbar-bg);
+  box-shadow: 0 -2px 10px var(--shadow-color);
+}
+
+.app-window {
+  background-color: var(--window-bg);
+  box-shadow: 0 10px 30px var(--shadow-color);
+}
+
+.app-title-bar {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+#start-menu {
+  background-color: var(--start-menu-bg);
+}
+
+.start-menu-item:hover {
+  background-color: var(--hover-color);
+}
+
+#context-menu {
+  background-color: var(--context-menu-bg);
+}
+
+.context-menu-item:hover {
+  background-color: var(--hover-color);
+}
+
+#notifications-panel {
+  background-color: var(--window-bg);
+}
+
+.notification-item {
+  background-color: var(--hover-color);
+}
+
+/* Add more element-specific styles as needed */

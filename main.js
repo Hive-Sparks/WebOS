@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("WebOS version 0.7 loaded successfully");
+  console.log("WebOS version 0.8 loaded successfully");
 
   // Update clock
   function updateClock() {
@@ -93,6 +93,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Focus the new window
     focusWindow(appWindow);
+
+    if (appName === "file-manager") {
+      initializeFileManager(appWindow);
+    }
   }
 
   function getAppTitle(appName) {
@@ -140,6 +144,29 @@ document.addEventListener("DOMContentLoaded", function () {
           <p data-translate="version"></p>
           <p>Developer: Leon Yaakobov</p>
           <button id="check-updates" data-translate="check_updates"></button>
+        </div>
+      `;
+    } else if (appName === "file-manager") {
+      return `
+        <div class="file-manager">
+          <div class="file-manager-toolbar">
+            <button id="back-button"><i class="fas fa-arrow-left"></i></button>
+            <button id="forward-button"><i class="fas fa-arrow-right"></i></button>
+            <button id="up-button"><i class="fas fa-level-up-alt"></i></button>
+            <input type="text" id="path-input" readonly>
+            <div class="file-manager-actions">
+              <button id="new-folder-button"><i class="fas fa-folder-plus"></i> New Folder</button>
+              <button id="upload-file-button"><i class="fas fa-file-upload"></i> Upload File</button>
+              <input type="file" id="file-upload-input" style="display: none;" multiple>
+            </div>
+          </div>
+          <div class="file-manager-content">
+            <div id="folder-view"></div>
+          </div>
+          <div class="file-manager-status-bar">
+            <span id="items-count">0 items</span>
+            <span id="selected-count">0 selected</span>
+          </div>
         </div>
       `;
     }
@@ -295,5 +322,360 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // ... (rest of the existing code)
+  function initializeFileManager(appWindow) {
+    const folderView = appWindow.querySelector("#folder-view");
+    const pathInput = appWindow.querySelector("#path-input");
+    const backButton = appWindow.querySelector("#back-button");
+    const forwardButton = appWindow.querySelector("#forward-button");
+    const upButton = appWindow.querySelector("#up-button");
+    const newFolderButton = appWindow.querySelector("#new-folder-button");
+    const uploadFileButton = appWindow.querySelector("#upload-file-button");
+    const fileUploadInput = appWindow.querySelector("#file-upload-input");
+    const itemsCount = appWindow.querySelector("#items-count");
+    const selectedCount = appWindow.querySelector("#selected-count");
+
+    let currentPath = "/";
+    let history = ["/"];
+    let historyIndex = 0;
+    let selectedItems = new Set();
+
+    function updateFolderView() {
+      folderView.innerHTML = "";
+      pathInput.value = currentPath;
+
+      // Simulated file system (replace with actual file system integration)
+      const files = [
+        { name: "Documents", type: "folder" },
+        { name: "Pictures", type: "folder" },
+        { name: "Music", type: "folder" },
+        { name: "report.docx", type: "file" },
+        { name: "presentation.pptx", type: "file" },
+        { name: "budget.xlsx", type: "file" },
+      ];
+
+      files.forEach((file) => {
+        const fileElement = document.createElement("div");
+        fileElement.className = "file-item";
+        fileElement.innerHTML = `
+          <input type="checkbox" class="file-checkbox">
+          <i class="fas ${
+            file.type === "folder" ? "fa-folder" : "fa-file"
+          }"></i>
+          <span>${file.name}</span>
+        `;
+        fileElement.addEventListener("dblclick", () => {
+          if (file.type === "folder") {
+            navigateTo(currentPath + file.name + "/");
+          }
+        });
+        fileElement.addEventListener("click", (e) => {
+          if (e.target.classList.contains("file-checkbox")) {
+            toggleItemSelection(fileElement, file.name);
+          }
+        });
+        folderView.appendChild(fileElement);
+      });
+
+      updateStatusBar(files.length);
+    }
+
+    function navigateTo(path) {
+      currentPath = path;
+      history = history.slice(0, historyIndex + 1);
+      history.push(path);
+      historyIndex = history.length - 1;
+      updateFolderView();
+    }
+
+    function toggleItemSelection(element, itemName) {
+      if (selectedItems.has(itemName)) {
+        selectedItems.delete(itemName);
+        element.classList.remove("selected");
+      } else {
+        selectedItems.add(itemName);
+        element.classList.add("selected");
+      }
+      updateStatusBar();
+    }
+
+    function updateStatusBar(totalItems = null) {
+      if (totalItems !== null) {
+        itemsCount.textContent = `${totalItems} item${
+          totalItems !== 1 ? "s" : ""
+        }`;
+      }
+      selectedCount.textContent = `${selectedItems.size} selected`;
+    }
+
+    backButton.addEventListener("click", () => {
+      if (historyIndex > 0) {
+        historyIndex--;
+        currentPath = history[historyIndex];
+        updateFolderView();
+      }
+    });
+
+    forwardButton.addEventListener("click", () => {
+      if (historyIndex < history.length - 1) {
+        historyIndex++;
+        currentPath = history[historyIndex];
+        updateFolderView();
+      }
+    });
+
+    upButton.addEventListener("click", () => {
+      const parentPath = currentPath.split("/").slice(0, -2).join("/") + "/";
+      navigateTo(parentPath);
+    });
+
+    newFolderButton.addEventListener("click", () => {
+      const folderName = prompt("Enter folder name:");
+      if (folderName) {
+        alert(`Created folder: ${folderName}`);
+        updateFolderView();
+      }
+    });
+
+    uploadFileButton.addEventListener("click", () => {
+      fileUploadInput.click();
+    });
+
+    fileUploadInput.addEventListener("change", (e) => {
+      const files = e.target.files;
+      if (files.length > 0) {
+        alert(`Uploaded ${files.length} file(s)`);
+        updateFolderView();
+      }
+    });
+
+    folderView.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      showContextMenu(e.clientX, e.clientY);
+    });
+
+    function showContextMenu(x, y) {
+      const contextMenu = document.createElement("div");
+      contextMenu.className = "context-menu";
+      contextMenu.innerHTML = `
+        <div class="context-menu-item" data-action="open">Open</div>
+        <div class="context-menu-item" data-action="rename">Rename</div>
+        <div class="context-menu-item" data-action="delete">Delete</div>
+        <div class="context-menu-item" data-action="properties">Properties</div>
+      `;
+      contextMenu.style.left = `${x}px`;
+      contextMenu.style.top = `${y}px`;
+      appWindow.appendChild(contextMenu);
+
+      contextMenu.addEventListener("click", (e) => {
+        const action = e.target.dataset.action;
+        if (action) {
+          handleContextMenuAction(action);
+        }
+        contextMenu.remove();
+      });
+
+      document.addEventListener("click", () => contextMenu.remove(), {
+        once: true,
+      });
+    }
+
+    function handleContextMenuAction(action) {
+      switch (action) {
+        case "open":
+          alert("Opening selected items");
+          break;
+        case "rename":
+          alert("Renaming selected items");
+          break;
+        case "delete":
+          alert("Deleting selected items");
+          break;
+        case "properties":
+          alert("Showing properties of selected items");
+          break;
+      }
+    }
+
+    updateFolderView();
+  }
+
+  // Day Clock Theme
+  const dayClockThemes = {
+    morning: {
+      emoji: "🌅",
+      name: "בוקר",
+      colors: { primary: "#FFD700", secondary: "#87CEEB" },
+    },
+    noon: {
+      emoji: "☀️",
+      name: "צהריים",
+      colors: { primary: "#FF8C00", secondary: "#F4A460" },
+    },
+    evening: {
+      emoji: "🌇",
+      name: "ערב",
+      colors: { primary: "#FF4500", secondary: "#8B4513" },
+    },
+    night: {
+      emoji: "🌙",
+      name: "לילה",
+      colors: { primary: "#191970", secondary: "#483D8B" },
+    },
+  };
+
+  let currentTheme = "morning";
+
+  function updateDayClockTheme() {
+    const now = new Date();
+    const hour = now.getHours();
+
+    if (hour >= 5 && hour < 12) {
+      setTheme("morning");
+    } else if (hour >= 12 && hour < 17) {
+      setTheme("noon");
+    } else if (hour >= 17 && hour < 21) {
+      setTheme("evening");
+    } else {
+      setTheme("night");
+    }
+  }
+
+  function setTheme(theme) {
+    currentTheme = theme;
+    const { emoji, colors } = dayClockThemes[theme];
+    document.getElementById("day-clock-icon").textContent = emoji;
+
+    // Update the theme stylesheet
+    const themeStyle = document.getElementById("theme-style");
+    themeStyle.href = `themes/${theme}.css`;
+
+    updateDayClockWindow();
+  }
+
+  function createDayClockIcon() {
+    const icon = document.createElement("div");
+    icon.id = "day-clock-icon";
+    icon.className = "taskbar-icon";
+    icon.textContent = dayClockThemes[currentTheme].emoji;
+    icon.addEventListener("click", toggleDayClockWindow);
+    document.getElementById("system-tray").prepend(icon);
+  }
+
+  function createDayClockWindow() {
+    const window = document.createElement("div");
+    window.id = "day-clock-window";
+    window.className = "day-clock-window hidden";
+    window.innerHTML = `
+      <div class="day-clock-grid">
+        ${Object.entries(dayClockThemes)
+          .map(
+            ([key, { emoji, name }]) => `
+          <div class="day-clock-item" data-theme="${key}">
+            <span class="day-clock-emoji">${emoji}</span>
+            <span class="day-clock-name">${name}</span>
+          </div>
+        `
+          )
+          .join("")}
+      </div>
+    `;
+    document.body.appendChild(window);
+
+    window.addEventListener("click", (e) => {
+      const themeItem = e.target.closest(".day-clock-item");
+      if (themeItem) {
+        setTheme(themeItem.dataset.theme);
+        toggleDayClockWindow();
+      }
+    });
+  }
+
+  function toggleDayClockWindow() {
+    const window = document.getElementById("day-clock-window");
+    window.classList.toggle("hidden");
+  }
+
+  function updateDayClockWindow() {
+    const items = document.querySelectorAll(".day-clock-item");
+    items.forEach((item) => {
+      item.classList.toggle("active", item.dataset.theme === currentTheme);
+    });
+  }
+
+  // Initialize day clock
+  createDayClockIcon();
+  createDayClockWindow();
+  updateDayClockTheme();
+  setInterval(updateDayClockTheme, 60000); // Update every minute
+
+  // Notifications system
+  const notificationsIcon = document.getElementById("notifications-icon");
+  const notificationsPanel = document.getElementById("notifications-panel");
+  const notificationsList = document.getElementById("notifications-list");
+  const clearNotificationsButton = document.getElementById(
+    "clear-notifications"
+  );
+  let notifications = [];
+
+  notificationsIcon.addEventListener("click", toggleNotificationsPanel);
+  clearNotificationsButton.addEventListener("click", clearNotifications);
+
+  function toggleNotificationsPanel() {
+    notificationsPanel.classList.toggle("hidden");
+  }
+
+  function addNotification(title, message) {
+    const notification = {
+      id: Date.now(),
+      title,
+      message,
+      time: new Date().toLocaleTimeString(),
+    };
+    notifications.push(notification);
+    updateNotificationsDisplay();
+    showNotificationCount();
+  }
+
+  function updateNotificationsDisplay() {
+    notificationsList.innerHTML = notifications
+      .map(
+        (notif) => `
+      <div class="notification-item" data-id="${notif.id}">
+        <div class="notification-title">${notif.title}</div>
+        <div class="notification-message">${notif.message}</div>
+        <div class="notification-time">${notif.time}</div>
+      </div>
+    `
+      )
+      .join("");
+  }
+
+  function showNotificationCount() {
+    const count = notifications.length;
+    notificationsIcon.setAttribute("data-count", count);
+    notificationsIcon.style.setProperty("--count", `"${count}"`);
+    if (count > 0) {
+      notificationsIcon.style.setProperty("--display", "block");
+    } else {
+      notificationsIcon.style.setProperty("--display", "none");
+    }
+  }
+
+  function clearNotifications() {
+    notifications = [];
+    updateNotificationsDisplay();
+    showNotificationCount();
+  }
+
+  // Example usage:
+  setTimeout(
+    () => addNotification("ברוך הבא", "ברוכים הבאים ל-WebOS גרסה 0.8!"),
+    3000
+  );
+  setTimeout(
+    () => addNotification("עדכון זמין", "גרסה חדשה של WebOS זמינה להורדה."),
+    10000
+  );
+
+  // ... (rest of the existing code) ...
 });
